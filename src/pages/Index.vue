@@ -117,7 +117,6 @@ export default {
     //   socket.emit("getUsername", this.username);
     // }
     this.emitUsername();
-    this.emitGen();
   },
   methods: {
     emitUsername() {
@@ -131,7 +130,7 @@ export default {
     },
     setUsername() {
       localStorage.setItem('username', this.username)
-      emitUsername();
+      this.emitUsername();
     },
     emitGen() {
       socket.emit("randomGen");

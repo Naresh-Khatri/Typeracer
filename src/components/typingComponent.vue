@@ -26,7 +26,7 @@ tl-clip tr-scoop b-clip-x both"
     </div>
     <div
       class="q-pa-md"
-      style="width:90%; margin: 100px auto; 
+      style="width:90%; margin: 0px auto; 
           margin-top:100px; z-index:100"
     >
       <q-badge color="secondary"> Progress: {{ progress }}% </q-badge>
@@ -37,7 +37,24 @@ tl-clip tr-scoop b-clip-x both"
         :max="100"
         :step="1"
         label
-        label-value="User1"
+        :label-value="username"
+        label-always
+        readonly
+        color="secondary"
+      />
+    </div><div
+      class="q-pa-md"
+      style="width:90%; margin: 0px auto; z-index:100"
+    >
+      <q-badge color="secondary"> Progress: {{ opponentProgress }}% </q-badge>
+
+      <q-slider
+        v-model="opponentProgress"
+        :min="0"
+        :max="100"
+        :step="1"
+        label
+        :label-value="opponent.username"
         label-always
         readonly
         color="secondary"
@@ -56,7 +73,7 @@ export default {
       wordslist: [],
       userword: "",
       progress: 0,
-
+      opponent:{}
     };
   },
   computed: {
@@ -68,12 +85,19 @@ export default {
     },
     progressPercent() {
       return this.randomWordsIndex.length;
+    },
+    username(){
+      return store.state.username
+    },
+
+    opponentProgress(){
+      return (30-this.opponent.progress) /30 *100
     }
   },
   sockets: {
     updateProgress(data){
+      this.opponent = data
       console.log(data)
-
     }
   },
   methods: {

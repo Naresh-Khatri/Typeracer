@@ -41,11 +41,10 @@ socketio.on("connection", socket => {
     user = connectedUserMap.get(connectedUserId)
     user.progress = data.progress
     console.log(connectedUserMap)
-
-    socket.emit('updateProgress', 'updating')
+    socket.broadcast.emit('updateProgress', connectedUserMap.get(socket.id))
   } )
   socket.on("disconnect", (data) => {
-
+    connectedUserMap.delete(connectedUserId)
     count--;
     console.log("user disconnected",data);
     console.log("disconnected count", count);
