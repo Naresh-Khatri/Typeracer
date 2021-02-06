@@ -88,10 +88,14 @@ import VueSocketIOExt from "vue-socket.io-extended";
 import { io } from "socket.io-client";
 import Vue from "vue";
 
+export var socket = process.env.DEBUGGING
+  ? io("ws://localhost:8000")
+  : io("wss://" + window.location.hostname);
+
 // if (process.env.DEBUGGING) {
 //   export var socket = io("ws://localhost:8000");
 // } else
- export var socket = io("wss://" + window.location.hostname); //wss = wss over https
+//  export var socket = io("wss://" + window.location.hostname); //wss = wss over https
 
 Vue.use(VueSocketIOExt, socket);
 
