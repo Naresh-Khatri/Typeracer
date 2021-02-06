@@ -10,7 +10,7 @@ const socketio = require("socket.io")(http, { cors: { origin: "*" } });
 var count = 0;
 var randomIndexArray = [];
 
-app.use(express.static(path.join(__dirname,"../", "dist", "spa")));
+app.use(express.static(path.join(__dirname, "dist", "spa")));
 // app.get('*', (req,res) =>{
 //   res.sendFile(path.join(__dirname,'dist/spa/index.html'));
 // });
