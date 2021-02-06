@@ -17,7 +17,7 @@
         </q-toolbar-title>
 
         <div style="color:#1d1d1d; margin-right:30px" v-if="username">
-          Online Players: <strong>{{  }}</strong>
+          Online Players: <strong>{{ onlineCount }}</strong>
         </div>
         <div style="color:#1d1d1d" v-if="username">
           Playing as <strong>{{ username }}</strong>
@@ -67,6 +67,9 @@ export default {
     username() {
       return store.state.username;
     },
+    onlineCount(){
+      return store.state.onlineCount
+    }
   },
   mounted() {
     console.log(store.state.username);

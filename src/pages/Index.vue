@@ -1,8 +1,8 @@
 <template>
   <q-page class="flex flex-center page">
     <!-- <img alt="Quasar logo" src="~assets/quasar-logo-full.svg" /> -->
-    <q-btn lable="generate" @click="emitGen" />
-    <div v-if="!hasUsername" class="q-pa-md">
+    <!-- <q-btn lable="generate" @click="emitGen" /> -->
+    <div v-if="state == 'signup'" class="q-pa-md">
       <button class="btn" @click="dialog = true">start</button>
       <q-dialog v-model="dialog" persistent>
         <div
@@ -23,11 +23,10 @@
               class="username-input"
               outlined
               v-model="username"
-              v-on:keydown.enter="dialog = false"
               color="dark"
               label="username"
               autofocus
-              @keypress.enter="setUsername()"
+              v-on:keydown.enter="setUsername()"
             />
             <!-- <q-input standout="text-white" v-model="username" label="Standout" /> -->
           </q-card-section>
@@ -47,8 +46,34 @@
         </div>
       </q-dialog>
     </div>
-    <div v-else>
-      <q-btn label="send name" @click="emitUsername()" />
+    <div v-else-if="state == 'lobby'">
+      <q-btn
+        style="left:800px; top:30px; background:#FF003C; z-index:100"
+        data-augmented-ui="tl-clip br-clip "
+        label="Start Game"
+        size="xl"
+        @click="startGame"
+      />
+      <!-- <button style="left:700px; top:60px" class="btn" @click="dialog = true">start</button> -->
+
+      <h1
+        style="margin:0px;position:relative; top:-50px;text-weight:bold"
+        class="cpfont"
+      >
+        lobby
+      </h1>
+
+      <lobbyComp />
+    </div>
+    <div v-else-if="state == 'game'">
+      <!-- <q-btn label="send name" @click="emitUsername()" /> -->
+      <q-btn
+        style="background:#FF003C; z-index:100"
+        data-augmented-ui="tl-clip br-clip "
+        label="<- Lobby"
+        size="xl"
+        @click="goToLobby()"
+      />
       <typingComp />
     </div>
   </q-page>
@@ -56,37 +81,27 @@
 
 <script>
 import typingComp from "../components/typingComponent.vue";
+import lobbyComp from "../components/lobbyComponent.vue";
 import { store } from "../store/index";
-import words from "../components/words.json";
 
-// import Vue from "vue"
-// import VueSocketIO from 'vue-socket.io';
-// import socketio from 'socket.io'
-// //export const SocketInstance = socketio('http://localhost:4113');
-// Vue.use(new VueSocketIO({
-//   debug: false,
-//   connection:'localhost:8000',
-//}))
-
-//const io = (window.io = require("socket.io-client"));
 import VueSocketIOExt from "vue-socket.io-extended";
 import { io } from "socket.io-client";
 import Vue from "vue";
 
-//const socket = io('http://socketserver.com:1923');
 export var socket = io("ws://localhost:8000");
 Vue.use(VueSocketIOExt, socket);
 
 export default {
   name: "PageIndex",
-  components: { typingComp },
+  components: { typingComp, lobbyComp },
   data() {
     return {
       dialog: false,
       cancelEnabled: false,
       username: "",
       hasUsername: false,
-      isConnected: false
+      isConnected: false,
+      state: "signup"
     };
   },
   sockets: {
@@ -94,28 +109,33 @@ export default {
       // Fired when the socket connects.
       console.log("connected to socket");
       this.isConnected = true;
-      this.emitUsername()
+      this.emitUsername();
     },
-    getRandomWords(indexArray) {
+    startGame(indexArray) {
+      this.state = "game";
       store.state.randomWordsIndex = indexArray;
       console.log(store.state.randomWordsIndex);
+    },
+    gameEnded(data) {
+      console.log(data, "has completed the game");
+      this.$q.notify({
+        message: `<strong> ${data} <span style="color:'dark'"></span></strong> won  the game wew *-*`,
+        position: "top",
+        color: "green",
+        html: true
+      });
+    },
+    goToLobby() {
+      this.state = "lobby";
     },
     disconnect() {
       this.isConnected = false;
     },
-
-    // Fired when the server sends something on the "messageChannel" channel.
-    messageChannel(data) {
-      this.socketMessage = data;
+    counter(data) {
+      store.state.onlineCount = data.count;
     }
   },
   created() {
-    // if (localStorage.getItem("username")) {
-    //   this.username = localStorage.getItem("username");
-    //   store.state.username = this.username;
-    //   this.hasUsername = true;
-    //   socket.emit("getUsername", this.username);
-    // }
     this.emitUsername();
   },
   methods: {
@@ -126,11 +146,20 @@ export default {
         store.state.username = this.username;
         console.log("sending name " + store.state.username);
         socket.emit("getUsername", store.state.username);
+        this.state = "lobby";
       }
     },
     setUsername() {
-      localStorage.setItem('username', this.username)
+      localStorage.setItem("username", this.username);
       this.emitUsername();
+    },
+    startGame() {
+      console.log("starting game");
+      socket.emit("startGame");
+      this.state = "game";
+    },
+    goToLobby() {
+      this.state = "lobby";
     },
     emitGen() {
       socket.emit("randomGen");
