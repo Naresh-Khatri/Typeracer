@@ -142,13 +142,13 @@ export default {
 
     counter(data) {
       if (data.count > 1)
-        Notify.create({
+        this.$q.notify({
           type: "positive",
           message: "A new user joined chat",
           position: "top"
         });
       if (store.state.usersCount > data.count)
-        Notify.create({
+        this.$q.notify({
           type: "negative",
           message: "A new user left chat",
           position: "top"
