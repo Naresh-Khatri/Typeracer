@@ -5,7 +5,7 @@ const http = require("http").Server(app);
 const socketio = require("socket.io")(http, { cors: { origin: "*" } });
 
 //import words from './components/words.json';
-var words = require("./components/words.json");
+//var words = require("src/components/words.json");
 
 var count = 0;
 var randomIndexArray = [];
