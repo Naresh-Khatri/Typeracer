@@ -46,7 +46,7 @@ socketio.on("connection", socket => {
     });
 
     socket.on("startGame", () => {
-      generateRandomIndexArray(1);
+      generateRandomIndexArray(100);
       socketio.emit("startGame", randomIndexArray);
     });
   });

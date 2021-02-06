@@ -91,7 +91,7 @@ export default {
     },
 
     opponentProgress(){
-      return Math.ceil((30-this.opponent.progress) /30 *100)
+      return Math.ceil((100-this.opponent.progress) /100 *100)
     }
   },
   sockets: {

@@ -139,8 +139,20 @@ export default {
     disconnect() {
       this.isConnected = false;
     },
+
     counter(data) {
-      store.state.onlineCount = data.count;
+      if (data.count > 1)
+        Notify.create({
+          type: "positive",
+          message: "A new user joined chat",
+          position: "top"
+        });
+      if (store.state.usersCount > data.count)
+        Notify.create({
+          type: "negative",
+          message: "A new user left chat",
+          position: "top"
+        });
     }
   },
   created() {
