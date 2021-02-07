@@ -15,7 +15,7 @@ app.use(express.static(path.join(__dirname, "dist", "spa")));
 //   res.sendFile(path.join(__dirname,'dist/spa/index.html'));
 // });
 
-console.log(path.join(__dirname, "dist", "spa"))
+console.log(path.join(__dirname, "dist", "spa"));
 
 const PORT = process.env.PORT || 8000;
 
@@ -32,6 +32,7 @@ socketio.on("connection", socket => {
     "A User joined the chat";
   });
   socketio.emit("counter", { count: count });
+  socketio.emit("newUserConnected");
   console.log("connected count", count);
 
   socket.on("getUsername", username => {
@@ -48,6 +49,7 @@ socketio.on("connection", socket => {
     socket.on("startGame", () => {
       generateRandomIndexArray(100);
       socketio.emit("startGame", randomIndexArray);
+      socketio.emit("updateProgress", connectedUserMap.get(socket.id));
     });
   });
   socket.on("randomGen", () => {
@@ -72,6 +74,7 @@ socketio.on("connection", socket => {
     console.log("user disconnected", data);
     console.log("disconnected count", count);
     socketio.emit("counter", { count: count });
+    socketio.emit("userDisconnected");
   });
 });
 

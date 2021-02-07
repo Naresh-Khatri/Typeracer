@@ -42,10 +42,8 @@ tl-clip tr-scoop b-clip-x both"
         readonly
         color="secondary"
       />
-    </div><div
-      class="q-pa-md"
-      style="width:90%; margin: 0px auto; z-index:100"
-    >
+    </div>
+    <div class="q-pa-md" style="width:90%; margin: 0px auto; z-index:100">
       <q-badge color="secondary"> Progress: {{ opponentProgress }}% </q-badge>
 
       <q-slider
@@ -73,7 +71,7 @@ export default {
       wordslist: [],
       userword: "",
       progress: 0,
-      opponent:{}
+      opponent: {}
     };
   },
   computed: {
@@ -86,18 +84,18 @@ export default {
     progressPercent() {
       return this.randomWordsIndex.length;
     },
-    username(){
-      return store.state.username
+    username() {
+      return store.state.username;
     },
 
-    opponentProgress(){
-      return Math.ceil((100-this.opponent.progress) /100 *100)
+    opponentProgress() {
+      return Math.ceil(((100 - this.opponent.progress) / 100) * 100);
     }
   },
   sockets: {
-    updateProgress(data){
-      this.opponent = data
-      console.log(data)
+    updateProgress(data) {
+      this.opponent = data;
+      console.log(data);
     }
   },
   methods: {
@@ -107,9 +105,8 @@ export default {
       ) {
         store.state.randomWordsIndex.shift();
         document.querySelector(".first-word").style.background = "#02d7f2";
-        this.progress = Math.ceil(
-          ((30 - this.randomWordsIndex.length) / 30) * 100
-        );
+        this.progress = this.returnPercent(this.randomWordsIndex.length, 100);
+        // this.progress = 100 - this.randomWordsIndex.length
         this.sendProgress();
       } else {
         document.querySelector(".first-word").style.background = "red";
@@ -124,6 +121,9 @@ export default {
     },
     removeSpace() {
       this.userword = "";
+    },
+    returnPercent(val, max) {
+      return Math.ceil(((max - val) / max) * 100);
     }
   }
 };

@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint --ext .js,.vue ./",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon server.js"
   },
   "dependencies": {
     "@quasar/extras": "^1.0.0",

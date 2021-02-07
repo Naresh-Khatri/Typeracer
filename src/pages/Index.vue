@@ -139,24 +139,32 @@ export default {
     disconnect() {
       this.isConnected = false;
     },
+    counter(data){
+      store.state.onlineCount = data.count
+    },
+    newUserConnected() {
+      this.$q.notify({
+        type: "positive",
+        message: "A new user joined chat",
+        position: "top"
+      });
+    },
 
-    counter(data) {
-      if (data.count > 1)
-        this.$q.notify({
-          type: "positive",
-          message: "A new user joined chat",
-          position: "top"
-        });
-      if (store.state.usersCount > data.count)
-        this.$q.notify({
-          type: "negative",
-          message: "A new user left chat",
-          position: "top"
-        });
+    userDisconnected() {
+      this.$q.notify({
+        type: "negative",
+        message: "A new user left chat",
+        position: "top"
+      });
     }
   },
   created() {
     this.emitUsername();
+  },
+  computed: {
+    onlineCount() {
+      return store.state.onlineCount;
+    }
   },
   methods: {
     emitUsername() {
