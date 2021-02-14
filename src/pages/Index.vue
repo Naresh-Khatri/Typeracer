@@ -52,7 +52,7 @@
         data-augmented-ui="tl-clip br-clip "
         label="Start Game"
         size="xl"
-        @click="startGame"
+        @click="emitStartGame()"
       />
       <!-- <button style="left:700px; top:60px" class="btn" @click="dialog = true">start</button> -->
 
@@ -119,11 +119,18 @@ export default {
       this.isConnected = true;
       this.emitUsername();
     },
-    startGame(indexArray) {
+    startGame(data) {
       this.state = "game";
-      store.state.randomWordsIndex = indexArray;
-      console.log(store.state.randomWordsIndex);
+      store.state.randomWordsIndex = data.randomIndexArray;
+      //console.log(store.state.randomWordsIndex);
+      console.log(data.randomIndexArray);
     },
+    // startGame(indexArray) {
+    //   this.state = "game";
+    //   //this.startCounter();
+    //   store.state.randomWordsIndex = indexArray;
+    //   console.log(store.state.randomWordsIndex);
+    // },
     gameEnded(data) {
       console.log(data, "has completed the game");
       this.$q.notify({
@@ -139,21 +146,20 @@ export default {
     disconnect() {
       this.isConnected = false;
     },
-    counter(data){
-      store.state.onlineCount = data.count
+    counter(data) {
+      store.state.onlineCount = data.count;
     },
     newUserConnected() {
       this.$q.notify({
         type: "positive",
-        message: "A new user joined chat",
+        message: "A new user joined lobby",
         position: "top"
       });
     },
-
     userDisconnected() {
       this.$q.notify({
         type: "negative",
-        message: "A new user left chat",
+        message: "A user left the game",
         position: "top"
       });
     }
@@ -181,9 +187,10 @@ export default {
       localStorage.setItem("username", this.username);
       this.emitUsername();
     },
-    startGame() {
-      console.log("starting game");
-      socket.emit("startGame");
+    emitStartGame() {
+      //console.log("starting game");
+      //socket.emit("socketStartGame");
+      socket.emit("emitStartGame");
       this.state = "game";
     },
     goToLobby() {

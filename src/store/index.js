@@ -33,8 +33,8 @@ export const store = new Vuex.Store({
     randomWordsIndex:[],
     words: wordsjson,
     onlineCount:0,
-    messageData:[]
-
+    messageData:[],
+    matchPlayers:[]
   }
 })
 import wordsjson from '../components/words.json'

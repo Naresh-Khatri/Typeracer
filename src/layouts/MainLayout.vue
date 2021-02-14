@@ -16,10 +16,37 @@
           <div style="color:black">TypeRacer</div>
         </q-toolbar-title>
 
-        <div style="color:#1d1d1d; margin-right:30px" v-if="username">
+        <!-- <div style="color:#1d1d1d; margin-right:30px" v-if="username">
           Online Players: <strong>{{ onlineCount }}</strong>
-        </div>
+        </div> -->
+        <q-btn-dropdown
+          style="color: black; margin:0px 10px"
+          :label="'🟢' + onlineCount + ' online'"
+          :key="onlineCount"
+          @click="getUsersList()"
+        >
+          <q-list>
+            <q-item clickable v-close-popup>
+              <q-item-section>
+                <q-item-label v-for="(user, index) in usersList" :key="index"
+                  >{{ user.username }}
+                  <span style="color:#FF003C; font-weight: bold" v-if="user.username == 'unknown'"
+                    >(New)</span
+                  ><span style="color:green; font-weight: bold" v-if="socketID == user.id"
+                    >(You)</span
+                  ></q-item-label
+                >
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
         <div style="color:#1d1d1d" v-if="username">
+          <q-btn
+            icon="logout"
+            style="margin:0px 10px;"
+            title="Logout"
+            @click="logout()"
+          />
           Playing as <strong>{{ username }}</strong>
         </div>
       </q-toolbar>
@@ -47,33 +74,58 @@
     </q-drawer> -->
 
     <q-page-container>
-      <router-view />
+      <router-view :key="updateChild" />
     </q-page-container>
   </q-layout>
 </template>
 
 <script>
 import { store } from "../store/index";
-import socket from '../pages/Index.vue'
+import { socket } from "../pages/Index.vue";
 
 export default {
   name: "MainLayout",
   data() {
     return {
-      leftDrawerOpen: false
+      leftDrawerOpen: false,
+      usersList: [],
+      updateChild: false
     };
   },
   computed: {
+    socketID() {
+      return socket.id;
+    },
     username() {
       return store.state.username;
     },
-    onlineCount(){
-      return store.state.onlineCount
+    onlineCount() {
+      return store.state.onlineCount;
     }
   },
   mounted() {
     console.log(store.state.username);
+    this.getUsersList();
   },
-  methods: {}
+  sockets: {
+    getUsersList(data) {
+      this.usersList = data;
+    }
+  },
+  methods: {
+    getUsersList() {
+      socket.emit("getUsersList");
+    },
+    logout() {
+      store.state.username = "";
+      this.$q.notify({
+        message: "Logged out successfully",
+        position: "top",
+        color: "black"
+      });
+      localStorage.setItem("username", "");
+      this.updateChild = !this.updateChild;
+    }
+  }
 };
 </script>

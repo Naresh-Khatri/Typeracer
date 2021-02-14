@@ -1,3 +1,4 @@
+const { match } = require("assert");
 const express = require("express");
 const path = require("path");
 const app = express();
@@ -20,11 +21,12 @@ console.log(path.join(__dirname, "dist", "spa"));
 const PORT = process.env.PORT || 8000;
 
 let connectedUserMap = new Map();
+let matchPlayers = new Map();
 
 socketio.on("connection", socket => {
   let connectedUserId = socket.id;
 
-  connectedUserMap.set(socket.id, { username: "none" });
+  connectedUserMap.set(socket.id, { username: "unknown" });
   count++;
   console.log(`a user connected`);
   console.log(connectedUserMap);
@@ -32,25 +34,42 @@ socketio.on("connection", socket => {
     "A User joined the chat";
   });
   socketio.emit("counter", { count: count });
-  socketio.emit("newUserConnected");
+  socket.broadcast.emit("newUserConnected");
   console.log("connected count", count);
-
   socket.on("getUsername", username => {
-    let user = connectedUserMap.get(connectedUserId);
-    user.id = connectedUserId;
-    user.username = username;
-    console.log(connectedUserMap);
-
-    socket.on("getMessage", data => {
-      socketio.emit("newMessage", data);
-      console.log(data);
+    var user = connectedUserMap.get(connectedUserId);
+    user["username"] = username;
+    user["id"] = connectedUserId;
+  });
+  socket.on("getUsersList", () => {
+    var usersList = [];
+    connectedUserMap.forEach(obj => {
+      usersList.push(obj);
     });
-
-    socket.on("startGame", () => {
-      generateRandomIndexArray(100);
-      socketio.emit("startGame", randomIndexArray);
-      socketio.emit("updateProgress", connectedUserMap.get(socket.id));
-    });
+    socket.emit("getUsersList", usersList);
+  });
+  socket.on("getMessage", data => {
+    socketio.emit("newMessage", data);
+    console.log(data);
+  });
+  socket.on("emitStartGame", () => {
+    console.log("called testing");
+    matchPlayers.set(socket.id, {});
+    generateRandomIndexArray(100);
+    socketio.emit("startGame", { randomIndexArray });
+    socketio.emit("initializeGameData", [...matchPlayers.entries()]);
+    matchPlayers = new Map();
+  });
+  socket.on("sendStartGame", () => {
+    console.log("called start");
+    //generateRandomIndexArray(100)
+    socket.emit("testing");
+  });
+  socket.on("socketStartGame", () => {
+    generateRandomIndexArray(100);
+    socketio.emit("startGame", randomIndexArray);
+    socketio.emit("updateProgress", connectedUserMap.get(socket.id));
+    console.log("starting");
   });
   socket.on("randomGen", () => {
     generateRandomIndexArray(30);
@@ -60,8 +79,11 @@ socketio.on("connection", socket => {
     user = connectedUserMap.get(connectedUserId);
     user.progress = data.progress;
     console.log(connectedUserMap.get(socket.id));
-    socket.broadcast.emit("updateProgress", connectedUserMap.get(socket.id));
-    if (user.progress == 0) {
+
+    matchPlayers.set(socket.id, data);
+
+    socketio.emit("updateProgress", [...matchPlayers.entries()]);
+    if (user.progress == 100) {
       console.log(user.username, "has completed the game");
       socketio.emit("gameEnded", user.username);
       socketio.emit("goToLobby");
@@ -77,7 +99,6 @@ socketio.on("connection", socket => {
     socketio.emit("userDisconnected");
   });
 });
-
 http.listen(PORT, () => console.log("listening on port " + PORT));
 
 function generateRandomIndexArray(size) {

@@ -6,12 +6,18 @@ tl-clip tr-scoop b-clip-x both"
   >
     <div class="container">
       <div data-augmented-ui="tl-clip br-clip " class="chat-box">
-        <div v-if="msgData.length">
-          <div v-for="(data, index) in msgData" :key="index">
-            {{ data.username }}: {{ data.message }}
+        <q-scroll-area
+          :thumb-style="thumbStyle"
+          style="height: 100%; width: 100%; padding:20px"
+        >
+          <div v-if="msgData.length">
+            <div v-for="(data, index) in msgData" :key="index">
+              <strong> {{ data.username }}</strong
+              >: {{ data.message }}
+            </div>
           </div>
-        </div>
-        <div v-else style="color:#978d01">send a message</div>
+          <div v-else style="color:#978d01">send a message</div>
+        </q-scroll-area>
       </div>
       <input
         data-augmented-ui="tr-clip"
@@ -19,7 +25,7 @@ tl-clip tr-scoop b-clip-x both"
         v-model="msg"
         @keydown.enter="sendMessage()"
         autofocus
-        placeholder="type here"
+        placeholder="Type here"
       />
     </div>
   </div>
@@ -32,7 +38,18 @@ import { socket } from "../pages/Index.vue";
 export default {
   data() {
     return {
-      msg: ""
+      msg: "",
+      contentActiveStyle: {
+        color: "black"
+      },
+
+      thumbStyle: {
+        right: "2px",
+        borderRadius: "5px",
+        backgroundColor: "#027be3",
+        width: "5px",
+        opacity: 0.75
+      }
     };
   },
   computed: {
@@ -63,10 +80,9 @@ export default {
     waitScrollBottom() {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          console.log("resolved");
           const scrollElement = document.querySelector(".chat-box");
           scrollElement.scrollTop = scrollElement.scrollHeight;
-        }, 0);
+        }, 10);
       });
     }
   }

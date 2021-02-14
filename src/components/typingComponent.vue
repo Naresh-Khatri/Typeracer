@@ -20,48 +20,53 @@ tl-clip tr-scoop b-clip-x both"
         class="input-box"
         v-model="userword"
         @keydown.space="verifyWord()"
-        @keyup.space="removeSpace()"
+        @keyup.space="userword=''"
         autofocus
       />
     </div>
-    <div
-      class="q-pa-md"
-      style="width:90%; margin: 0px auto; 
-          margin-top:100px; z-index:100"
-    >
-      <q-badge color="secondary"> Progress: {{ progress }}% </q-badge>
+    <div style="margin-top:65px;"></div>
+    <q-list dense>
+      <q-item
+        class="q-pa-sm"
+        style="width:90%; margin: 0 auto; z-index:100;display:flex; flex-direction:row; align-items:center"
+        v-for="(player, index) in matchPlayers"
+        :key="index"
+      >
+        <!-- {{ player[1] }} -->
 
-      <q-slider
-        v-model="progress"
-        :min="0"
-        :max="100"
-        :step="1"
-        label
-        :label-value="username"
-        label-always
-        readonly
-        color="secondary"
-      />
-    </div>
-    <div class="q-pa-md" style="width:90%; margin: 0px auto; z-index:100">
-      <q-badge color="secondary"> Progress: {{ opponentProgress }}% </q-badge>
-
-      <q-slider
-        v-model="opponentProgress"
-        :min="0"
-        :max="100"
-        :step="1"
-        label
-        :label-value="opponent.username"
-        label-always
-        readonly
-        color="secondary"
-      />
-    </div>
+        <q-knob
+          v-model="player[1].progress"
+          show-value
+          size="50px"
+          :thickness="0.22"
+          color="teal"
+          track-color="grey-3"
+          class="q-ma-md"
+          style="margin:5px"
+          readonly
+          title="Speed in WPS"
+        >
+          <strong style="color:black;font-size:18px">{{
+            player[1].wps
+          }}</strong>
+        </q-knob>
+        <q-slider
+          style="margin:0px 20px"
+          :value="player[1].progress"
+          :min="0"
+          :max="100"
+          :step="1"
+          label
+          :label-value="player[1].username"
+          label-always
+          readonly
+          color="secondary"
+        />
+      </q-item>
+    </q-list>
   </div>
 </template>
 <script>
-import wordsjson from "./words.json";
 import { store } from "../store/index";
 import { socket } from "../pages/Index.vue";
 
@@ -71,7 +76,11 @@ export default {
       wordslist: [],
       userword: "",
       progress: 0,
-      opponent: {}
+      opponent: {},
+      secondsElapsed: 0,
+      interval: null,
+      wps: "",
+      matchPlayers: new Map()
     };
   },
   computed: {
@@ -86,17 +95,41 @@ export default {
     },
     username() {
       return store.state.username;
-    },
-
-    opponentProgress() {
-      return Math.ceil(((100 - this.opponent.progress) / 100) * 100);
     }
   },
   sockets: {
-    updateProgress(data) {
-      this.opponent = data;
-      console.log(data);
+    updateProgress(playersList) {
+      this.matchPlayers = playersList;
+      playersList.forEach(player => {
+        console.log(player[1]);
+      });
+      // this.wps = (((100 - data.progress) * 60) / this.secondsElapsed).toFixed(
+      //   0
+      // );
+      // this.matchPlayers.set(data.id, {
+      //   username: data.username,
+      //   progress: 100 - data.progress,
+      //   speed: this.wps
+      // });
+      // this.matchPlayers.forEach(player=>{
+      //   console.log(player)
+      // });
+    },
+    initializeGameData(playersList) {
+      this.matchPlayers = playersList;
+      console.log(this.matchPlayers);
+      playersList.forEach(player => {
+        //console.log(player[1]);
+      });
     }
+  },
+  mounted() {
+    this.startCounter();
+    this.sendInitialize();
+  },
+  beforeDestroy() {
+    console.log("destroying");
+    clearInterval(this.interval);
   },
   methods: {
     verifyWord() {
@@ -105,8 +138,9 @@ export default {
       ) {
         store.state.randomWordsIndex.shift();
         document.querySelector(".first-word").style.background = "#02d7f2";
-        this.progress = this.returnPercent(this.randomWordsIndex.length, 100);
-        // this.progress = 100 - this.randomWordsIndex.length
+        this.progress = 100 - this.randomWordsIndex.length;
+        this.wps = Math.ceil((this.progress * 60) / this.secondsElapsed);
+        console.log(this.progress);
         this.sendProgress();
       } else {
         document.querySelector(".first-word").style.background = "red";
@@ -116,14 +150,30 @@ export default {
     sendProgress() {
       socket.emit("sendProgress", {
         id: socket.id,
-        progress: this.randomWordsIndex.length
+        progress: this.progress,
+        wps: this.wps,
+        username: store.state.username
       });
     },
-    removeSpace() {
-      this.userword = "";
+    sendInitialize() {
+      socket.emit("sendProgress", {
+        id: socket.id,
+        progress: 0,
+        wps: "0",
+        username: store.state.username
+      });
     },
-    returnPercent(val, max) {
+    getPercent(val, max) {
+      //console.log('returning ', Math.ceil(((max - val) / max) * 100))
       return Math.ceil(((max - val) / max) * 100);
+    },
+    startCounter() {
+      this.secondsElapsed = 0;
+      console.log("called counter");
+      this.interval = setInterval(() => {
+        this.secondsElapsed += 1;
+        // console.log(this.secondsElapsed);
+      }, 1000);
     }
   }
 };
@@ -157,7 +207,7 @@ export default {
 .input-box {
   outline: none;
   text-decoration: none;
-  border: none;
+  border: 2px solid #26a69a;
   background: white;
   font-weight: bold;
   font-size: 25px;
