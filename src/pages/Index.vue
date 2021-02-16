@@ -131,6 +131,15 @@ export default {
     //   store.state.randomWordsIndex = indexArray;
     //   console.log(store.state.randomWordsIndex);
     // },
+    playerLeft(data) {
+      if (this.state == "game")
+        this.$q.notify({
+          type: "negative",
+          message: `<strong>${data.username}</strong> left the game`,
+          position: "top",
+          html: true
+        });
+    },
     gameEnded(data) {
       console.log(data, "has completed the game");
       this.$q.notify({
@@ -195,6 +204,12 @@ export default {
     },
     goToLobby() {
       this.state = "lobby";
+      socket.emit("sendProgress", {
+        id: socket.id,
+        username: store.state.username,
+        active: false
+      });
+      socket.emit("wentToLobby", socket.id);
     },
     emitGen() {
       socket.emit("randomGen");

@@ -22,6 +22,7 @@ const PORT = process.env.PORT || 8000;
 
 let connectedUserMap = new Map();
 let matchPlayers = new Map();
+let rankList = [];
 
 socketio.on("connection", socket => {
   let connectedUserId = socket.id;
@@ -53,15 +54,15 @@ socketio.on("connection", socket => {
     console.log(data);
   });
   socket.on("emitStartGame", () => {
-    console.log("called testing");
     matchPlayers.set(socket.id, {});
     generateRandomIndexArray(100);
     socketio.emit("startGame", { randomIndexArray });
     socketio.emit("initializeGameData", [...matchPlayers.entries()]);
+    for (var i = matchPlayers.size; i > 0; i--) rankList.push(i); 
     matchPlayers = new Map();
   });
   socket.on("sendStartGame", () => {
-    console.log("called start");
+    //console.log("called start");
     //generateRandomIndexArray(100)
     socket.emit("testing");
   });
@@ -69,25 +70,32 @@ socketio.on("connection", socket => {
     generateRandomIndexArray(100);
     socketio.emit("startGame", randomIndexArray);
     socketio.emit("updateProgress", connectedUserMap.get(socket.id));
-    console.log("starting");
+    //console.log("starting");
   });
   socket.on("randomGen", () => {
     generateRandomIndexArray(30);
     socketio.emit("getRandomWords", randomIndexArray);
   });
   socket.on("sendProgress", data => {
-    user = connectedUserMap.get(connectedUserId);
-    user.progress = data.progress;
-    console.log(connectedUserMap.get(socket.id));
+    //console.log(connectedUserMap.get(socket.id));
 
     matchPlayers.set(socket.id, data);
 
     socketio.emit("updateProgress", [...matchPlayers.entries()]);
-    if (user.progress == 100) {
-      console.log(user.username, "has completed the game");
-      socketio.emit("gameEnded", user.username);
-      socketio.emit("goToLobby");
+    if (data.progress == 100) {
+      socketio.emit("gameEnded", matchPlayers.get(socket.id).username);
+      var rank = rankList.pop()
+      socket.emit("showResults", rank);
+      console.log('sending rank ' + rankList)
+      //socketio.emit("goToLobby");
     }
+  });
+
+  socket.on("wentToLobby", id => {
+    var player = matchPlayers.get(id);
+    player.active = false;
+    console.log(matchPlayers.get(socket.id), "has left");
+    socket.broadcast.emit("playerLeft", matchPlayers.get(socket.id));
   });
 
   socket.on("disconnect", data => {

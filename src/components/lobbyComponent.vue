@@ -8,12 +8,17 @@ tl-clip tr-scoop b-clip-x both"
       <div data-augmented-ui="tl-clip br-clip " class="chat-box">
         <q-scroll-area
           :thumb-style="thumbStyle"
-          style="height: 100%; width: 100%; padding:20px"
+          style="height: 220%; width: 100%; padding:20px"
+          id="chat-box1"
+          ref="scrollArea"
         >
           <div v-if="msgData.length">
             <div v-for="(data, index) in msgData" :key="index">
               <strong> {{ data.username }}</strong
-              >: {{ data.message }}
+              >: {{ data.message
+              }}<span style="font-size:15px;float:right">
+                {{ minutesAgo(data.time) }}</span
+              >
             </div>
           </div>
           <div v-else style="color:#978d01">send a message</div>
@@ -35,12 +40,16 @@ import wordsjson from "./words.json";
 import { store } from "../store/index";
 import { socket } from "../pages/Index.vue";
 
+import { scroll } from "quasar";
+const { getScrollHeight } = scroll;
+
 export default {
   data() {
     return {
       msg: "",
       contentActiveStyle: {
-        color: "black"
+        color: "black",
+        scrollPosition: 0
       },
 
       thumbStyle: {
@@ -60,30 +69,40 @@ export default {
       return store.state.messageData;
     }
   },
+  mounted() {
+    this.scrollToBottom();
+  },
   sockets: {
-    async newMessage(data) {
+    newMessage(data) {
       console.log("new message", data);
       this.msgData.push(data);
-      await this.waitScrollBottom();
-      // this.scrollToBottom();
+      this.scrollToBottom();
     }
   },
   methods: {
     sendMessage() {
-      socket.emit("getMessage", { username: this.username, message: this.msg });
+      socket.emit("getMessage", {
+        username: this.username,
+        time: Date.now(),
+        message: this.msg
+      });
       this.msg = "";
     },
-    // scrollToBottom() {
-    //   const scrollElement = document.querySelector(".chat-box");
-    //   scrollElement.scrollTop = scrollElement.scrollHeight;
-    // },
-    waitScrollBottom() {
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          const scrollElement = document.querySelector(".chat-box");
-          scrollElement.scrollTop = scrollElement.scrollHeight;
-        }, 10);
-      });
+    minutesAgo(date) {
+      var minutes = Math.floor((Date.now() - date) / (1000 * 60));
+      if ((Date.now() - date) / 1000 < 20) return "- Just now";
+      else if (
+        (Date.now() - date) / 1000 > 20 &&
+        (Date.now() - date) / 1000 < 60
+      )
+        return " - 30 secs ago ";
+      else return " - " + minutes + " Min ago ";
+    },
+    scrollToBottom() {
+      console.log(this.$refs.scrollArea.getScrollPosition());
+      const chatBox = document.querySelector("#chat-box1");
+      console.log(getScrollHeight(chatBox));
+      this.$refs.scrollArea.setScrollPosition(10000, 300);
     }
   }
 };
