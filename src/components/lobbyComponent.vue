@@ -73,8 +73,12 @@ export default {
     this.scrollToBottom();
   },
   sockets: {
+    getOldMessages(data){
+      //console.log(data)
+      store.state.messageData = data
+    },
     newMessage(data) {
-      console.log("new message", data);
+      //console.log("new message", data);
       this.msgData.push(data);
       this.scrollToBottom();
     }
@@ -99,9 +103,9 @@ export default {
       else return " - " + minutes + " Min ago ";
     },
     scrollToBottom() {
-      console.log(this.$refs.scrollArea.getScrollPosition());
+      //console.log(this.$refs.scrollArea.getScrollPosition());
       const chatBox = document.querySelector("#chat-box1");
-      console.log(getScrollHeight(chatBox));
+      //console.log(getScrollHeight(chatBox));
       this.$refs.scrollArea.setScrollPosition(10000, 300);
     }
   }

@@ -10,6 +10,7 @@ const socketio = require("socket.io")(http, { cors: { origin: "*" } });
 
 var count = 0;
 var randomIndexArray = [];
+var messages = []
 
 app.use(express.static(path.join(__dirname, "dist", "spa")));
 // app.get('*', (req,res) =>{
@@ -35,6 +36,7 @@ socketio.on("connection", socket => {
     "A User joined the chat";
   });
   socketio.emit("counter", { count: count });
+  socket.emit('getOldMessages', messages)
   socket.broadcast.emit("newUserConnected");
   console.log("connected count", count);
   socket.on("getUsername", username => {
@@ -51,6 +53,10 @@ socketio.on("connection", socket => {
   });
   socket.on("getMessage", data => {
     socketio.emit("newMessage", data);
+    messages.push(data)
+    if(messages.length >100)
+      messages.shift()
+    
     console.log(data);
   });
   socket.on("emitStartGame", () => {
