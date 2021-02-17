@@ -15,8 +15,8 @@ tl-clip tr-scoop b-clip-x both"
           <div v-if="msgData.length">
             <div v-for="(data, index) in msgData" :key="index">
               <strong> {{ data.username }}</strong
-              >: {{ data.message
-              }}<span style="font-size:15px;float:right">
+              >:<span class="fonts-futura"> {{ data.message }}</span
+              ><span style="font-size:15px;float:right">
                 {{ minutesAgo(data.time) }}</span
               >
             </div>
@@ -73,9 +73,9 @@ export default {
     this.scrollToBottom();
   },
   sockets: {
-    getOldMessages(data){
+    getOldMessages(data) {
       //console.log(data)
-      store.state.messageData = data
+      store.state.messageData = data;
     },
     newMessage(data) {
       //console.log("new message", data);
@@ -184,7 +184,6 @@ export default {
   --aug-inlay-bg: #fbe806;
   background: linear-gradient(#ff604d, #b1ffff);
   color: #b1ffff;
-  font-size: "cyberpunkregular";
 }
 .pitch-mixin {
   --aug-tr: 25px;

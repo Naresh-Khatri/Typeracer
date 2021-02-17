@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar>
-        <q-btn
+        <!-- <q-btn
           flat
           dense
           round
@@ -10,16 +10,17 @@
           color="dark"
           aria-label="Menu"
           @click="leftDrawerOpen = !leftDrawerOpen"
-        />
+        /> -->
 
         <q-toolbar-title>
-          <div style="color:black">TypeRacer</div>
+          <div class="cp2-fonts" style="color:black">TypeRacer</div>
         </q-toolbar-title>
 
         <!-- <div style="color:#1d1d1d; margin-right:30px" v-if="username">
           Online Players: <strong>{{ onlineCount }}</strong>
         </div> -->
         <q-btn-dropdown
+        class="cp2-fonts"
           style="color: black; margin:0px 10px"
           :label="'🟢' + onlineCount + ' online'"
           :key="onlineCount"
@@ -129,3 +130,8 @@ export default {
   }
 };
 </script>
+<style>
+*{
+  font-family: "Orbitron"
+}
+</style>
