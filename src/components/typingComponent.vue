@@ -6,11 +6,11 @@ tl-clip tr-scoop b-clip-x both
 tl-2-clip-x l-rect-xy"
   >
     <div class="container" v-if="!completed">
-      <div data-augmented-ui="tl-clip br-clip  " class="words-box">
+      <div class="words-box" data-augmented-ui="tl-clip br-clip  ">
         <div
           v-for="(randomWordIndex, index) in randomWordsIndex"
           :key="index"
-          class="word"
+          class="word fonts-futura"
           :class="index == 0 ? 'first-word' : ''"
         >
           {{ words[randomWordIndex] }}
@@ -18,7 +18,7 @@ tl-2-clip-x l-rect-xy"
       </div>
       <input
         data-augmented-ui="tr-clip"
-        class="input-box"
+        class="input-box fonts-futura"
         v-model="userword"
         @keydown.space="verifyWord()"
         @keyup.space="userword = ''"
@@ -32,17 +32,17 @@ tl-2-clip-x l-rect-xy"
     >
       <div
         data-augmented-ui="tl-clip br-clip"
-        style="display:flex; justify-content:center"
-        class="words-box"
+        style="display:flex; justify-content:center; font-size: 50px"
+        class="animate__animated animate__tada words-box"
       >
-        <div>Congrats! You got rank - {{ rank }}</div>
+        <div >Congrats! You got rank - {{ rank }}</div>
       </div>
     </div>
 
     <div style="margin-top:65px;"></div>
     <q-list dense>
       <q-item
-        class="q-pa-sm"
+        class="q-pa-sm animate__animated animate__rollIn"
         style="width:90%; margin: 0 auto; z-index:100;display:flex; flex-direction:row; align-items:center"
         v-for="(player, index) in matchPlayers"
         :key="index"
@@ -88,6 +88,11 @@ tl-2-clip-x l-rect-xy"
           readonly
           color="secondary"
         />
+        <span
+          style="font-weight:bold; font-size: 30px;top:5px;color:red; width:100%; text-align:center; position:absolute"
+          v-if="!player[1].active"
+          >Player Left!</span
+        >
       </q-item>
     </q-list>
   </div>
@@ -95,6 +100,7 @@ tl-2-clip-x l-rect-xy"
 <script>
 import { store } from "../store/index";
 import { socket } from "../pages/Index.vue";
+import "animate.css";
 
 export default {
   data() {
@@ -215,7 +221,15 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style>
+* {
+  --animate-duration: 1s;
+}
+.fonts-futura {
+  font-family: futura-pt, sans-serif;
+  font-style: normal;
+  font-weight: 600;
+}
 .container {
   position: relative;
   width: 100%;
@@ -268,7 +282,6 @@ export default {
   --aug-inlay-bg: #fbe806;
   background: linear-gradient(#ff604d, #b1ffff);
   color: #b1ffff;
-  font-size: "cyberpunkregular";
 }
 .pitch-mixin {
   --aug-tr: 25px;

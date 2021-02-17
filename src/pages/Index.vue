@@ -220,9 +220,9 @@ export default {
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap");
 * {
-  font-family: "Orbitron", sans-serif;
+  font-family:'futura', sans-serif;
 }
-.cpfont {
+ .cpfont {
   font-family: "cyberpunkregular";
 }
 @font-face {
@@ -230,7 +230,7 @@ export default {
   src: url("../assets/fonts/Cyberpunk.woff") format("woff");
   font-weight: normal;
   font-style: normal;
-}
+} 
 .dialog-box {
   position: relative;
 }
@@ -280,7 +280,6 @@ export default {
   padding: 30px 90px;
   color: white;
   font-size: 25px;
-  font-family: "cyberpunkregular";
   font-weight: bold;
   cursor: pointer;
   transition: 0.2s;
@@ -313,4 +312,5 @@ export default {
   border-right: 20px solid #ff003c;
   width: 0;
 }
+
 </style>
