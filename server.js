@@ -5,6 +5,8 @@ const app = express();
 const http = require("http").Server(app);
 const socketio = require("socket.io")(http, { cors: { origin: "*" } });
 
+
+var msgjson  = require('./src/components/messagesStorage.json')
 //import words from './components/words.json';
 //var words = require("src/components/words.json");
 
@@ -36,7 +38,7 @@ socketio.on("connection", socket => {
     "A User joined the chat";
   });
   socketio.emit("counter", { count: count });
-  socket.emit('getOldMessages', messages)
+  socket.emit('getOldMessages', msgjson)
   socket.broadcast.emit("newUserConnected");
   console.log("connected count", count);
   socket.on("getUsername", username => {
@@ -53,11 +55,12 @@ socketio.on("connection", socket => {
   });
   socket.on("getMessage", data => {
     socketio.emit("newMessage", data);
+    msgjson.push(data)
     messages.push(data)
-    if(messages.length >100)
-      messages.shift()
+    // if(msgjson.length >100)
+    //   msgjson.shift()
     
-    console.log(data);
+    console.log(msgjson);
   });
   socket.on("emitStartGame", () => {
     matchPlayers.set(socket.id, {});
