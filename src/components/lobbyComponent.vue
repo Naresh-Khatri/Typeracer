@@ -41,6 +41,10 @@ import { store } from "../store/index";
 import { socket } from "../pages/Index.vue";
 
 import { scroll } from "quasar";
+
+var msgReceivedSound = new Audio(require("../assets/received.wav"));
+var msgsentSound = new Audio(require("../assets/sent.wav"));
+
 const { getScrollHeight } = scroll;
 
 export default {
@@ -54,10 +58,10 @@ export default {
 
       thumbStyle: {
         right: "2px",
-        borderRadius: "5px",
-        backgroundColor: "#027be3",
+        borderRadius: "0px",
+        backgroundColor: "#FF003C",
         width: "5px",
-        opacity: 0.75
+        opacity: 1
       }
     };
   },
@@ -79,13 +83,16 @@ export default {
     },
     newMessage(data) {
       //console.log("new message", data);
+      if (data.id != socket.id) msgReceivedSound.play();
       this.msgData.push(data);
       this.scrollToBottom();
     }
   },
   methods: {
     sendMessage() {
+      msgsentSound.play();
       socket.emit("getMessage", {
+        id: socket.id,
         username: this.username,
         time: Date.now(),
         message: this.msg

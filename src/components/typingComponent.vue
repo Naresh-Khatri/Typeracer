@@ -35,7 +35,7 @@ tl-2-clip-x l-rect-xy"
         style="display:flex; justify-content:center; font-size: 50px"
         class="animate__animated animate__tada words-box"
       >
-        <div >Congrats! You got rank - {{ rank }}</div>
+        <div>Congrats! You got rank - {{ rank }}</div>
       </div>
     </div>
 
@@ -100,6 +100,11 @@ tl-2-clip-x l-rect-xy"
 <script>
 import { store } from "../store/index";
 import { socket } from "../pages/Index.vue";
+
+var correctSound = new Audio(require("../assets/correct.wav"));
+var inCorrectSound = new Audio(require("../assets/incorrect.wav"));
+var completedSound = new Audio(require("../assets/wow.mp3"));
+
 import "animate.css";
 
 export default {
@@ -153,6 +158,7 @@ export default {
       console.log(this.matchPlayers);
     },
     showResults(rank) {
+      completedSound.play()
       this.completed = true;
       console.log(rank);
       this.rank = rank;
@@ -184,6 +190,7 @@ export default {
         // console.log(this.progress);
         this.sendProgress();
       } else {
+        inCorrectSound.play();
         document.querySelector(".first-word").style.background = "red";
       }
       this.userword = "";
@@ -194,6 +201,8 @@ export default {
       // })
     },
     sendProgress() {
+      correctSound.play();
+
       socket.emit("sendProgress", {
         id: socket.id,
         progress: this.progress,
